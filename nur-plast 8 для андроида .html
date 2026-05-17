@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Нур-Пласт">
+<meta name="theme-color" content="#080c14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Нур-Пласт">
+<link rel="manifest" href="data:application/json;charset=utf-8,{
+  %22name%22: %22%D0%9D%D1%83%D1%80-%D0%9F%D0%BB%D0%B0%D1%81%D1%82%22,
+  %22short_name%22: %22%D0%9D%D1%83%D1%80-%D0%9F%D0%BB%D0%B0%D1%81%D1%82%22,
+  %22start_url%22: %22.%22,
+  %22display%22: %22standalone%22,
+  %22background_color%22: %22%23080c14%22,
+  %22theme_color%22: %22%2300c6ff%22,
+  %22description%22: %22%D0%91%D0%B8%D0%B7%D0%BD%D0%B5%D1%81-%D0%BC%D0%B5%D0%BD%D0%B5%D0%B4%D0%B6%D0%B5%D1%80 %D1%86%D0%B5%D1%85%D0%B0%22,
+  %22icons%22: [{%22src%22: %22https://img.icons8.com/fluency/192/factory.png%22, %22sizes%22: %22192x192%22, %22type%22: %22image/png%22}, {%22src%22: %22https://img.icons8.com/fluency/512/factory.png%22, %22sizes%22: %22512x512%22, %22type%22: %22image/png%22}]
+}">
+<title>Нур-Пласт</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #080c14; font-family: 'Nunito', 'Segoe UI', sans-serif; }
+  #root { max-width: 480px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+
+const APP_NAME = "Нур-Пласт";
+
+const PINS = {
+  "1111": { role: "owner", name: "Владелец" },
+  "2222": { role: "master", name: "Алишер", masterId: "m1" },
+  "3333": { role: "master", name: "Бобур", masterId: "m2" },
+  "4444": { role: "master", name: "Комил", masterId: "m3" },
+  "5555": { role: "manager", name: "Менеджер" },
+};
+
+const INIT_MASTERS = [
+  { id: "m1", name: "Алишер", pin: "2222" },
+  { id: "m2", name: "Бобур", pin: "3333" },
+  { id: "m3", name: "Комил", pin: "4444" },
+];
+
+const EXPENSE_CATS = ["Зарплата", "Аренда", "Электр", "Транспорт", "Закупка", "Другое"];
+
+const INIT_PRODUCTS = [
+  { id: "eco_z", name: "Эколайн Z", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "eco_l", name: "Эколайн L", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "eco_t", name: "Эколайн T", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "rol_wz", name: "Ролер сафед Z", cat: "Ролер", unit: "шт", length: 6 },
+  { id: "rol_wl", name: "Ролер сафед L", cat: "Ролер", unit: "шт", length: 6 },
+  { id: "rol_wt", name: "Ролер сафед T", cat: "Ролер", unit: "шт", length: 6 },
+  { id: "rol_cz", name: "Ролер шоколад Z", cat: "Ролер", unit: "шт", length: 6 },
+  { id: "rol_cl", name: "Ролер шоколад L", cat: "Ролер", unit: "шт", length: 6 },
+  { id: "rol_dz", name: "Ролер тёмний Z", cat: "Ролер", unit: "шт", length: 6 },
+  { id: "rol_dl", name: "Ролер тёмний L", cat: "Ролер", unit: "шт", length: 6 },
+  { id: "unopen_z", name: "Унопен Z", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "unopen_l", name: "Унопен L", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "steel_07", name: "Профель охани 0.7мм", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "steel_09", name: "Профель охани 0.9мм", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "steel_12", name: "Профель охани 1.2мм", cat: "Профиль", unit: "шт", length: 6 },
+  { id: "pod_w40", name: "Подоконик сафед 40см", cat: "Подоконик", unit: "шт", length: 6 },
+  { id: "pod_b40", name: "Подоконик сиёх 40см", cat: "Подоконик", unit: "шт", length: 6 },
+  { id: "pod_w30", name: "Подоконик сафед 30см", cat: "Подоконик", unit: "шт", length: 6 },
+  { id: "shtap_w", name: "Штапик ролер сафед", cat: "Штапик", unit: "шт", length: 6 },
+  { id: "shtap_b", name: "Штапик ролер сиёх", cat: "Штапик", unit: "шт", length: 6 },
+  { id: "shtap_e", name: "Штапик эколайн", cat: "Штапик", unit: "шт", length: 6 },
+  { id: "prof_y3", name: "Профели гули зард 3м", cat: "Профиль", unit: "шт", length: 3 },
+  { id: "pet_95w", name: "Петли 95мм сафед", cat: "Петли", unit: "шт", length: 0 },
+  { id: "pet_95b", name: "Петли 95мм сиёх", cat: "Петли", unit: "шт", length: 0 },
+  { id: "pet_75w", name: "Петли 75мм сафед", cat: "Петли", unit: "шт", length: 0 },
+  { id: "pet_100w", name: "Петли 100мм сафед", cat: "Петли", unit: "шт", length: 0 },
+  { id: "rig_250", name: "Ригл 250мм", cat: "Ригл", unit: "шт", length: 0 },
+  { id: "rig_400", name: "Ригл 400мм", cat: "Ригл", unit: "шт", length: 0 },
+  { id: "rig_600", name: "Ригл 600мм", cat: "Ригл", unit: "шт", length: 0 },
+  { id: "rig_800", name: "Ригл 800мм", cat: "Ригл", unit: "шт", length: 0 },
+  { id: "rig_1000", name: "Ригл 1000мм", cat: "Ригл", unit: "шт", length: 0 },
+  { id: "handle_w", name: "Даста тиреза сафед", cat: "Даста", unit: "шт", length: 0 },
+  { id: "handle_b", name: "Даста тиреза сиёх", cat: "Даста", unit: "шт", length: 0 },
+  { id: "handle_org_w", name: "Даста орг сафед", cat: "Даста", unit: "шт", length: 0 },
+  { id: "handle_door_b", name: "Дастаи дар алюмини сиёх", cat: "Даста", unit: "шт", length: 0 },
+  { id: "handle_door_w", name: "Дастаи дар алюмини сафед", cat: "Даста", unit: "шт", length: 0 },
+  { id: "glass_w", name: "Шиша сафед", cat: "Шиша", unit: "м²", length: 0 },
+  { id: "glass_b", name: "Шиша сиёх", cat: "Шиша", unit: "м²", length: 0 },
+  { id: "glass_r", name: "Шиша рефлиён", cat: "Шиша", unit: "м²", length: 0 },
+  { id: "foam", name: "Пена", cat: "Материал", unit: "бал", length: 0 },
+  { id: "mastic", name: "Мастика", cat: "Материал", unit: "шт", length: 0 },
+  { id: "screw_435", name: "Самарез 4×35", cat: "Материал", unit: "шт", length: 0 },
+  { id: "screw_425", name: "Самарез 4×25", cat: "Материал", unit: "шт", length: 0 },
+  { id: "rubber", name: "Резини тур", cat: "Материал", unit: "м", length: 0 },
+  { id: "door_ready", name: "Дар (готовый)", cat: "Готов", unit: "шт", length: 0 },
+  { id: "window_ready", name: "Тиреза (готовый)", cat: "Готов", unit: "шт", length: 0 },
+];
+
+const SK = "nurplast_v3";
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function uid() { return Math.random().toString(36).slice(2, 9); }
+function monthOf(d) { return d ? d.slice(0, 7) : ""; }
+function currentMonth() { return new Date().toISOString().slice(0, 7); }
+function fmt(n) { return new Intl.NumberFormat("ru-RU").format(Math.round(n || 0)) + " смн"; }
+function fmtN(n) { return new Intl.NumberFormat("ru-RU").format(Math.round(n || 0)); }
+
+function makeStock(products) {
+  const s = {};
+  products.forEach(p => {
+    const pcs = Math.floor(Math.random() * 20) + 5;
+    s[p.id] = { pcs, meters: p.length > 0 ? pcs * p.length : 0 };
+  });
+  return s;
+}
+
+function defaultData() {
+  const td = todayStr();
+  const pm = new Date(Date.now() - 32 * 86400000).toISOString().slice(0, 10);
+  return {
+    masters: INIT_MASTERS,
+    products: INIT_PRODUCTS,
+    stock: makeStock(INIT_PRODUCTS),
+    sales: [
+      { id: "s1", date: td, client: "Ахмад Рахимов", masterId: "m1", items: [{ id: "window_ready", qty: 3 }], total: 4500000, status: "done", note: "" },
+      { id: "s2", date: td, client: "Сарвар Каримов", masterId: "m2", items: [{ id: "door_ready", qty: 2 }], total: 3200000, status: "progress", note: "" },
+      { id: "s3", date: pm, client: "Нилуфар Юсупова", masterId: "m1", items: [{ id: "window_ready", qty: 5 }], total: 7500000, status: "done", note: "" },
+    ],
+    incomes: [
+      { id: "i1", date: td, source: "Оплата заказа", amount: 4500000, note: "Ахмад Рахимов" },
+      { id: "i2", date: pm, source: "Аванс", amount: 2000000, note: "Жамшид Турсунов" },
+    ],
+    expenses: [
+      { id: "e1", date: td, cat: "Зарплата", masterId: "m1", amount: 1500000, note: "Алишер — май" },
+      { id: "e2", date: pm, cat: "Аренда", masterId: null, amount: 800000, note: "Аренда цеха" },
+    ],
+    materialExpenses: [
+      { id: "me1", date: td, masterId: "m1", productId: "eco_z", qty: 3.5, unit: "м" },
+      { id: "me2", date: td, masterId: "m2", productId: "rol_wz", qty: 4.2, unit: "м" },
+    ],
+    materialIncomes: [
+      { id: "mi1", date: td, productId: "eco_z", qty: 10, price: 45, unit: "шт", note: "Закупка" },
+    ],
+  };
+}
+
+function load() {
+  try { const r = localStorage.getItem(SK); return r ? JSON.parse(r) : defaultData(); }
+  catch { return defaultData(); }
+}
+function save(d) { try { localStorage.setItem(SK, JSON.stringify(d)); } catch {} }
+
+// ── DESIGN ───────────────────────────────────────────────
+const C = {
+  bg: "#080c14", surface: "#0e1420", card: "#131928", card2: "#1a2236",
+  border: "#1e2d45", accent: "#00c6ff", accent2: "#00e68a",
+  warn: "#ffb830", danger: "#ff4d6d", text: "#e8f0fe", sub: "#7a8fa6", muted: "#2d4060",
+};
+const glow = c => `0 0 18px ${c}33`;
+
+function Card({ children, style = {}, glowC }) {
+  return <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, boxShadow: glowC ? glow(glowC) : "none", marginBottom: 0, ...style }}>{children}</div>;
+}
+
+function Pill({ color = "blue", children, sm }) {
+  const m = { green: ["#00e68a18","#00e68a","#00e68a44"], blue: ["#00c6ff18","#00c6ff","#00c6ff44"], yellow: ["#ffb83018","#ffb830","#ffb83044"], red: ["#ff4d6d18","#ff4d6d","#ff4d6d44"], gray: ["#3d506818","#7a8fa6","#3d506844"] };
+  const [bg, tc, bc] = m[color] || m.blue;
+  return <span style={{ background: bg, color: tc, border: `1px solid ${bc}`, borderRadius: 20, padding: sm ? "2px 8px" : "3px 12px", fontSize: sm ? 11 : 12, fontWeight: 700, whiteSpace: "nowrap" }}>{children}</span>;
+}
+
+function Inp({ label, value, onChange, type = "text", placeholder, disabled, step }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {label && <label style={{ color: C.sub, fontSize: 11, fontWeight: 700, letterSpacing: 0.5 }}>{label.toUpperCase()}</label>}
+      <input type={type} value={value} disabled={disabled} step={step}
+        onChange={e => onChange && onChange(e.target.value)} placeholder={placeholder}
+        style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 13px", color: C.text, fontSize: 14, outline: "none", width: "100%", boxSizing: "border-box", opacity: disabled ? 0.5 : 1, fontFamily: "inherit" }} />
+    </div>
+  );
+}
+
+function Sel({ label, value, onChange, options }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {label && <label style={{ color: C.sub, fontSize: 11, fontWeight: 700, letterSpacing: 0.5 }}>{label.toUpperCase()}</label>}
+      <select value={value} onChange={e => onChange(e.target.value)}
+        style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 13px", color: C.text, fontSize: 14, outline: "none", width: "100%", fontFamily: "inherit" }}>
+        {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function Btn({ children, onClick, v = "primary", full, sm, disabled }) {
+  const bg = { primary: "linear-gradient(135deg,#00c6ff,#0072ff)", success: "linear-gradient(135deg,#00e68a,#00b560)", danger: "linear-gradient(135deg,#ff4d6d,#c9184a)", warn: "linear-gradient(135deg,#ffb830,#e68900)", ghost: "transparent" };
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      background: bg[v] || bg.primary, color: v === "ghost" ? C.sub : "#fff",
+      border: v === "ghost" ? `1px solid ${C.border}` : "none",
+      borderRadius: 10, padding: sm ? "7px 13px" : "11px 18px",
+      fontSize: sm ? 12 : 14, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer",
+      width: full ? "100%" : "auto", opacity: disabled ? 0.5 : 1, letterSpacing: 0.3, fontFamily: "inherit",
+    }}>{children}</button>
+  );
+}
+
+function SecTitle({ icon, children }) {
+  return <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>{icon && <span style={{ fontSize: 16 }}>{icon}</span>}<span style={{ color: C.text, fontSize: 15, fontWeight: 800 }}>{children}</span></div>;
+}
+
+function TabBar({ tabs, active, onSelect, color = C.accent }) {
+  return (
+    <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+      {tabs.map(t => (
+        <button key={t.id} onClick={() => onSelect(t.id)} style={{
+          background: active === t.id ? color : C.card,
+          color: active === t.id ? (color === C.accent ? "#001a2e" : "#fff") : C.sub,
+          border: `1px solid ${active === t.id ? color : C.border}`,
+          borderRadius: 8, padding: "7px 13px", cursor: "pointer", fontSize: 12, fontWeight: 700, fontFamily: "inherit",
+          boxShadow: active === t.id ? glow(color) : "none",
+        }}>{t.label}</button>
+      ))}
+    </div>
+  );
+}
+
+function TodayBar({ items }) {
+  if (!items || !items.length) return null;
+  return (
+    <div style={{ background: "#00c6ff08", border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px", marginBottom: 12 }}>
+      <div style={{ color: C.sub, fontSize: 10, fontWeight: 700, marginBottom: 7 }}>📅 СЕГОДНЯ</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {items.map((it, i) => (
+          <div key={i} style={{ background: C.card2, borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>
+            <span style={{ color: C.sub }}>{it.label}: </span>
+            <span style={{ color: it.color || C.text, fontWeight: 700 }}>{it.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Confirm({ msg, onYes, onNo }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#000a", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, maxWidth: 300, width: "100%", textAlign: "center" }}>
+        <div style={{ fontSize: 24, marginBottom: 10 }}>⚠️</div>
+        <div style={{ color: C.text, fontSize: 14, fontWeight: 600, marginBottom: 18 }}>{msg}</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Btn onClick={onNo} v="ghost" full>Отмена</Btn>
+          <Btn onClick={onYes} v="danger" full>Удалить</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditSheet({ title, fields, values, onChange, onSave, onClose }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#000b", zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "18px 18px 0 0", padding: 20, width: "100%", maxWidth: 480 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <span style={{ color: C.text, fontWeight: 800, fontSize: 15 }}>{title}</span>
+          <button onClick={onClose} style={{ background: "transparent", border: "none", color: C.sub, fontSize: 20, cursor: "pointer" }}>✕</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 11, maxHeight: "55vh", overflowY: "auto" }}>
+          {fields.map(f => f.type === "select"
+            ? <Sel key={f.key} label={f.label} value={values[f.key] ?? ""} onChange={v => onChange(f.key, v)} options={f.options} />
+            : <Inp key={f.key} label={f.label} value={values[f.key] ?? ""} type={f.type || "text"} onChange={v => onChange(f.key, v)} placeholder={f.placeholder} />
+          )}
+        </div>
+        <div style={{ marginTop: 14 }}><Btn onClick={onSave} v="success" full>💾 Сохранить</Btn></div>
+      </div>
+    </div>
+  );
+}
+
+// Row with tap to reveal edit/delete (owner only)
+function ActionRow({ children, onEdit, onDelete, isOwner }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <div onClick={() => isOwner && setOpen(o => !o)} style={{ cursor: isOwner ? "pointer" : "default" }}>
+        {children}
+      </div>
+      {isOwner && open && (
+        <div style={{ display: "flex", gap: 6, marginTop: 5, paddingLeft: 4 }}>
+          {onEdit && <Btn onClick={() => { onEdit(); setOpen(false); }} v="warn" sm>✏️ Изменить</Btn>}
+          {onDelete && <Btn onClick={() => { onDelete(); setOpen(false); }} v="danger" sm>🗑 Удалить</Btn>}
+          <Btn onClick={() => setOpen(false)} v="ghost" sm>✕</Btn>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════════
+function LoginScreen({ onLogin, savedMasters, savedData }) {
+  const [pin, setPin] = useState("");
+  const [err, setErr] = useState("");
+  const [shake, setShake] = useState(false);
+  const tryPin = p => {
+    // Check dynamic owner PIN
+    if (savedData && savedData.ownerPin && p === savedData.ownerPin) { onLogin({ role: "owner", name: "Владелец" }); return; }
+    if (!savedData?.ownerPin && p === "1111") { onLogin({ role: "owner", name: "Владелец" }); return; }
+    // Check dynamic manager PIN
+    if (savedData && savedData.managerPin && p === savedData.managerPin) { onLogin({ role: "manager", name: "Менеджер" }); return; }
+    if (!savedData?.managerPin && p === "5555") { onLogin({ role: "manager", name: "Менеджер" }); return; }
+    // Check dynamic master pins
+    const allMasters = savedMasters || INIT_MASTERS;
+    const master = allMasters.find(m => m.pin === p);
+    if (master) { onLogin({ role: "master", name: master.name, masterId: master.id }); return; }
+    setShake(true); setErr("Неверный PIN"); setTimeout(() => { setShake(false); setPin(""); setErr(""); }, 800);
+  };
+  const press = d => {
+    const nx = d === "del" ? pin.slice(0, -1) : pin.length < 4 ? pin + d : pin;
+    setPin(nx);
+    if (nx.length === 4) setTimeout(() => tryPin(nx), 150);
+  };
+  return (
+    <div style={{ minHeight: "100vh", background: C.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Nunito','Segoe UI',sans-serif" }}>
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
+        <div style={{ width: 68, height: 68, borderRadius: 20, background: "linear-gradient(135deg,#00c6ff,#0072ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 12px", boxShadow: glow(C.accent) }}>🏭</div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: C.text }}>{APP_NAME}</div>
+        <div style={{ fontSize: 12, color: C.sub, marginTop: 3 }}>Бизнес-менеджер цеха</div>
+      </div>
+      <div style={{ display: "flex", gap: 14, marginBottom: 6, animation: shake ? "shake .4s" : "none" }}>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{ width: 13, height: 13, borderRadius: "50%", background: i < pin.length ? C.accent : "transparent", border: `2px solid ${i < pin.length ? C.accent : C.border}`, boxShadow: i < pin.length ? glow(C.accent) : "none", transition: "all .15s" }} />
+        ))}
+      </div>
+      <div style={{ color: err ? C.danger : C.sub, fontSize: 12, marginBottom: 14, minHeight: 18 }}>{err || "Введите PIN-код"}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,68px)", gap: 9 }}>
+        {["1","2","3","4","5","6","7","8","9","","0","del"].map((k, i) => (
+          <button key={i} onClick={() => k !== "" && press(k)} style={{ width: 68, height: 68, borderRadius: 14, background: k === "" ? "transparent" : k === "del" ? C.card2 : C.card, border: k === "" ? "none" : `1px solid ${C.border}`, color: C.text, fontSize: k === "del" ? 16 : 20, fontWeight: 700, cursor: k === "" ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>{k === "del" ? "⌫" : k}</button>
+        ))}
+      </div>
+      <div style={{ marginTop: 24, color: C.muted, fontSize: 11, textAlign: "center", lineHeight: 1.9 }}>
+        Владелец / Менеджер / Мастера — по PIN<br />PIN можно изменить в ⚙️ Настройки
+      </div>
+      <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}`}</style>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════
+function Dashboard({ data, user }) {
+  const masters = data.masters || INIT_MASTERS;
+  const cm = currentMonth(), td = todayStr();
+
+  // MONTH stats
+  const mIncome = data.incomes.filter(x => monthOf(x.date) === cm).reduce((s, x) => s + x.amount, 0);
+  const mSalesAmt = data.sales.filter(x => monthOf(x.date) === cm && x.status === "done").reduce((s, x) => s + x.total, 0);
+  const mTotalIncome = mIncome + mSalesAmt;
+  const mMatCost = data.materialIncomes.filter(x => monthOf(x.date) === cm).reduce((s, x) => s + (x.total || 0), 0);
+  const mExpense = data.expenses.filter(x => monthOf(x.date) === cm).reduce((s, x) => s + x.amount, 0) + mMatCost;
+  const mProfit = mTotalIncome - mExpense;
+
+  // TODAY stats
+  const tIncome = data.incomes.filter(x => x.date === td).reduce((s, x) => s + x.amount, 0);
+  const tSalesDone = data.sales.filter(x => x.date === td && x.status === "done").reduce((s, x) => s + x.total, 0);
+  const tSalesProgress = data.sales.filter(x => x.date === td && x.status === "progress").reduce((s, x) => s + x.total, 0);
+  const tSalesAmt = tSalesDone + tSalesProgress;
+  const tTotalIncome = tIncome + tSalesDone; // Only confirmed sales count as real income
+  const tTotalWithProgress = tIncome + tSalesAmt; // All sales incl. in-progress
+  const tMatCost = data.materialIncomes.filter(x => x.date === td).reduce((s, x) => s + (x.total || 0), 0);
+  const tExpense = data.expenses.filter(x => x.date === td).reduce((s, x) => s + x.amount, 0) + tMatCost;
+  const tSalesCount = data.sales.filter(x => x.date === td).length;
+
+  // TODAY history items
+  const todaySalesList = data.sales.filter(x => x.date === td);
+  const todayExpList = data.expenses.filter(x => x.date === td);
+  const todayMatExpList = data.materialExpenses.filter(x => x.date === td);
+  const todayMatIncList = data.materialIncomes.filter(x => x.date === td);
+
+  const inProgress = data.sales.filter(s => s.status === "progress");
+  const lowStock = data.products.filter(p => (data.stock[p.id]?.pcs || 0) < 5);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+      {/* TODAY SUMMARY */}
+      <Card glowC={C.accent}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 9 }}>
+          <span style={{ color: C.sub, fontSize: 11, fontWeight: 700 }}>📅 СЕГОДНЯ — {new Date().toLocaleDateString("ru", { day: "numeric", month: "long" })}</span>
+          <Pill color="blue" sm>{tSalesCount} заказов</Pill>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7, marginBottom: 10 }}>
+          {[["Приход", tTotalIncome, C.accent2],["Расходы", tExpense, C.danger],["Прибыль", tTotalIncome-tExpense, tTotalIncome>=tExpense?C.accent2:C.danger]].map(([l,v,c]) => (
+            <div key={l} style={{ textAlign: "center", background: C.surface, borderRadius: 8, padding: "8px 4px" }}>
+              <div style={{ color: C.sub, fontSize: 10 }}>{l}</div>
+              <div style={{ color: c, fontWeight: 800, fontSize: 13 }}>{fmtN(v)}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {tIncome > 0 && <div style={{ background: "#00e68a12", border: "1px solid #00e68a33", borderRadius: 8, padding: "4px 10px", fontSize: 11 }}>
+            <span style={{ color: "#7a8fa6" }}>💵 Оплаты: </span><span style={{ color: "#00e68a", fontWeight: 700 }}>{fmtN(tIncome)} смн</span>
+          </div>}
+          {tSalesDone > 0 && <div style={{ background: "#00e68a12", border: "1px solid #00e68a33", borderRadius: 8, padding: "4px 10px", fontSize: 11 }}>
+            <span style={{ color: "#7a8fa6" }}>🛒 Продажи: </span><span style={{ color: "#00e68a", fontWeight: 700 }}>{fmtN(tSalesDone)} смн</span>
+          </div>}
+          {tSalesProgress > 0 && <div style={{ background: "#ffb83012", border: "1px solid #ffb83033", borderRadius: 8, padding: "4px 10px", fontSize: 11 }}>
+            <span style={{ color: "#7a8fa6" }}>⏳ В работе: </span><span style={{ color: "#ffb830", fontWeight: 700 }}>{fmtN(tSalesProgress)} смн</span>
+          </div>}
+          {tMatCost > 0 && <div style={{ background: "#ff4d6d12", border: "1px solid #ff4d6d33", borderRadius: 8, padding: "4px 10px", fontSize: 11 }}>
+            <span style={{ color: "#7a8fa6" }}>📦 Закупка: </span><span style={{ color: "#ff4d6d", fontWeight: 700 }}>{fmtN(tMatCost)} смн</span>
+          </div>}
+        </div>
+      </Card>
+
+      {/* TODAY HISTORY */}
+      {(todaySalesList.length > 0 || todayExpList.length > 0 || todayMatExpList.length > 0 || todayMatIncList.length > 0) && (
+        <Card>
+          <SecTitle icon="🗂">История дня</SecTitle>
+
+          {todaySalesList.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ color: C.sub, fontSize: 10, fontWeight: 700, marginBottom: 5 }}>🛒 ПРОДАЖИ</div>
+              {todaySalesList.map(s => {
+                const m = masters.find(x => x.id === s.masterId);
+                return (
+                  <div key={s.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 10px", background: "#00e68a08", border: "1px solid #00e68a22", borderRadius: 8, marginBottom: 4 }}>
+                    <div>
+                      <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{s.client}</div>
+                      <div style={{ color: C.sub, fontSize: 11 }}>{m?.name} · {s.status === "done" ? "Готово" : "В работе"}</div>
+                    </div>
+                    <span style={{ color: C.accent2, fontWeight: 800, fontSize: 13 }}>{fmtN(s.total)} смн</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {todayMatIncList.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ color: C.sub, fontSize: 10, fontWeight: 700, marginBottom: 5 }}>📦 ПРИХОД МАТЕРИАЛА</div>
+              {todayMatIncList.map(x => {
+                const p = data.products.find(q => q.id === x.productId);
+                return (
+                  <div key={x.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 10px", background: "#00c6ff08", border: "1px solid #00c6ff22", borderRadius: 8, marginBottom: 4 }}>
+                    <div>
+                      <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{p?.name}</div>
+                      <div style={{ color: C.sub, fontSize: 11 }}>{x.qty} шт{x.price ? ` × ${fmtN(x.price)} смн` : ""}</div>
+                    </div>
+                    {x.total ? <span style={{ color: C.danger, fontWeight: 800, fontSize: 13 }}>−{fmtN(x.total)} смн</span> : <Pill color="blue" sm>+{x.qty} шт</Pill>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {todayMatExpList.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ color: C.sub, fontSize: 10, fontWeight: 700, marginBottom: 5 }}>🔩 РАСХОД МАТЕРИАЛА</div>
+              {todayMatExpList.map(x => {
+                const p = data.products.find(q => q.id === x.productId);
+                const m = masters.find(q => q.id === x.masterId);
+                return (
+                  <div key={x.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 10px", background: "#ffb83008", border: "1px solid #ffb83022", borderRadius: 8, marginBottom: 4 }}>
+                    <div>
+                      <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{p?.name}</div>
+                      <div style={{ color: C.sub, fontSize: 11 }}>{m?.name} · {x.qty} {x.unit}</div>
+                    </div>
+                    <Pill color="yellow" sm>−{x.qty} {x.unit}</Pill>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {todayExpList.length > 0 && (
+            <div>
+              <div style={{ color: C.sub, fontSize: 10, fontWeight: 700, marginBottom: 5 }}>💸 РАСХОДЫ</div>
+              {todayExpList.map(e => (
+                <div key={e.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 10px", background: "#ff4d6d08", border: "1px solid #ff4d6d22", borderRadius: 8, marginBottom: 4 }}>
+                  <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{e.note || e.cat}</div>
+                  <span style={{ color: C.danger, fontWeight: 800, fontSize: 13 }}>−{fmtN(e.amount)} смн</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* MONTH stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+        {[["📈","Приход (месяц)",mTotalIncome,C.accent2],["📉","Расходы",mExpense,C.danger],["💰","Прибыль",mProfit,mProfit>=0?C.accent2:C.danger],["🛒","Продажи",mSalesAmt,C.accent]].map(([ic,lb,vl,cl]) => (
+          <Card key={lb} style={{ padding: 12 }}>
+            <div style={{ fontSize: 17, marginBottom: 2 }}>{ic}</div>
+            <div style={{ color: C.sub, fontSize: 11 }}>{lb}</div>
+            <div style={{ color: cl, fontSize: 14, fontWeight: 800, marginTop: 1 }}>{fmtN(vl)}</div>
+            <div style={{ color: C.muted, fontSize: 10 }}>смн</div>
+          </Card>
+        ))}
+      </div>
+
+      {inProgress.length > 0 && (
+        <Card>
+          <SecTitle icon="⚙️">В работе ({inProgress.length})</SecTitle>
+          {inProgress.map(s => {
+            const m = masters.find(x => x.id === s.masterId);
+            return (
+              <div key={s.id} style={{ display: "flex", justifyContent: "space-between", padding: "8px 11px", background: C.surface, borderRadius: 9, marginBottom: 5 }}>
+                <div><div style={{ color: C.text, fontWeight: 700 }}>{s.client}</div><div style={{ color: C.sub, fontSize: 11 }}>{s.date} · {m?.name}</div></div>
+                <Pill color="yellow">В работе</Pill>
+              </div>
+            );
+          })}
+        </Card>
+      )}
+      {lowStock.length > 0 && (
+        <Card>
+          <SecTitle icon="⚠️">Малый остаток ({lowStock.length})</SecTitle>
+          {lowStock.slice(0, 5).map(p => (
+            <div key={p.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 11px", background: "#ff4d6d0a", border: "1px solid #ff4d6d22", borderRadius: 8, marginBottom: 4 }}>
+              <span style={{ color: C.text, fontSize: 13 }}>{p.name}</span>
+              <Pill color="red" sm>{(Math.round((data.stock[p.id]?.pcs || 0) * 100) / 100)} шт</Pill>
+            </div>
+          ))}
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// MATERIAL EXPENSE — быстрый ввод
+// ═══════════════════════════════════════════════════════════
+function MatExpense({ data, setData, user }) {
+  const masters = data.masters || INIT_MASTERS;
+  const [tab, setTab] = useState("quick");
+
+  const nonFinal = data.products.filter(p => p.cat !== "Готов");
+  const [pid, setPid] = useState(nonFinal[0]?.id || "");
+  const [qty, setQty] = useState("");
+  const [date, setDate] = useState(todayStr());
+  const [masterId, setMasterId] = useState(user.masterId || (data.masters || INIT_MASTERS)[0]?.id);
+  const [note, setNote] = useState("");
+  const [confirm, setConfirm] = useState(null);
+  const [editItem, setEditItem] = useState(null);
+
+  const prod = data.products.find(p => p.id === pid);
+  const isMetric = prod?.length > 0;
+  const unit = isMetric ? "м" : (prod?.unit || "шт");
+  const stock = data.stock[pid] || { pcs: 0, meters: 0 };
+
+  const myList = user.role === "master" ? data.materialExpenses.filter(x => x.masterId === user.masterId) : data.materialExpenses;
+  const td = todayStr();
+  const todayMats = {};
+  myList.filter(x => x.date === td).forEach(x => { todayMats[x.productId] = (todayMats[x.productId] || 0) + x.qty; });
+
+  const submit = () => {
+    if (!qty || Number(qty) <= 0) return alert("Введите количество");
+    const qNum = Number(qty);
+    setData(d => {
+      const p2 = d.products.find(x => x.id === pid);
+      const st = { ...d.stock };
+      const cur = st[pid] || { pcs: 0, meters: 0 };
+      let np = cur.pcs, nm = cur.meters;
+      if (p2?.length > 0) { nm = Math.max(0, cur.meters - qNum); np = nm / p2.length; }
+      else { np = Math.max(0, cur.pcs - qNum); }
+      st[pid] = { pcs: np, meters: nm };
+      const rec = { id: uid(), date, masterId, productId: pid, qty: qNum, unit, note };
+      const nd = { ...d, stock: st, materialExpenses: [rec, ...d.materialExpenses] };
+      save(nd); return nd;
+    });
+    setQty(""); setNote("");
+  };
+
+  const del = id => {
+    setData(d => {
+      const rec = d.materialExpenses.find(x => x.id === id);
+      if (!rec) return d;
+      const p2 = d.products.find(x => x.id === rec.productId);
+      const st = { ...d.stock };
+      const cur = st[rec.productId] || { pcs: 0, meters: 0 };
+      if (p2?.length > 0) { const nm2 = cur.meters + rec.qty; st[rec.productId] = { pcs: nm2 / p2.length, meters: nm2 }; }
+      else { st[rec.productId] = { pcs: cur.pcs + rec.qty, meters: 0 }; }
+      const nd = { ...d, stock: st, materialExpenses: d.materialExpenses.filter(x => x.id !== id) };
+      save(nd); return nd;
+    });
+    setConfirm(null);
+  };
+
+  const saveEdit = () => {
+    setData(d => { const nd = { ...d, materialExpenses: d.materialExpenses.map(x => x.id === editItem.id ? { ...x, ...editItem } : x) }; save(nd); return nd; });
+    setEditItem(null);
+  };
+
+  return (
+    <div>
+      {confirm && <Confirm msg="Удалить запись расхода?" onYes={() => del(confirm)} onNo={() => setConfirm(null)} />}
+      {editItem && (
+        <EditSheet title="Изменить расход материала" onClose={() => setEditItem(null)} onSave={saveEdit}
+          values={editItem} onChange={(k, v) => setEditItem(e => ({ ...e, [k]: v }))}
+          fields={[{ key: "date", label: "Дата", type: "date" }, { key: "qty", label: "Количество", type: "number" }, { key: "note", label: "Заметка" }]}
+        />
+      )}
+
+      {/* Today summary */}
+      {Object.keys(todayMats).length > 0 && (
+        <div style={{ background: "#ff4d6d08", border: "1px solid #ff4d6d22", borderRadius: 12, padding: "9px 13px", marginBottom: 12 }}>
+          <div style={{ color: C.sub, fontSize: 10, fontWeight: 700, marginBottom: 7 }}>📅 СЕГОДНЯ РАСХОДОВАНО</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {Object.entries(todayMats).map(([pid2, total]) => {
+              const p2 = data.products.find(x => x.id === pid2);
+              const u2 = p2?.length > 0 ? "м" : (p2?.unit || "шт");
+              return (
+                <div key={pid2} style={{ background: C.card2, borderRadius: 8, padding: "4px 10px", fontSize: 12 }}>
+                  <span style={{ color: C.sub }}>{p2?.name}: </span>
+                  <span style={{ color: C.danger, fontWeight: 700 }}>{Math.round(total * 10) / 10} {u2}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <TabBar tabs={[{ id: "quick", label: "⚡ Быстрый ввод" }, { id: "list", label: "📋 История" }]} active={tab} onSelect={setTab} color={C.danger} />
+
+      {tab === "quick" && (
+        <Card>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <Inp label="Дата" value={date} type="date" onChange={setDate} />
+            {user.role !== "master" && (
+              <Sel label="Мастер" value={masterId} onChange={setMasterId} options={masters.map(m => ({ value: m.id, label: m.name }))} />
+            )}
+            <Sel label="Материал" value={pid} onChange={v => { setPid(v); setQty(""); }}
+              options={nonFinal.map(p => ({ value: p.id, label: p.name }))} />
+
+            {/* Stock info */}
+            <div style={{ background: C.surface, borderRadius: 10, padding: "10px 13px", display: "flex", gap: 10 }}>
+              <div style={{ textAlign: "center", flex: 1 }}>
+                <div style={{ color: C.muted, fontSize: 10, fontWeight: 700 }}>ОСТАТОК</div>
+                <div style={{ color: C.accent, fontWeight: 900, fontSize: 22 }}>{Math.round(stock.pcs * 100) / 100}</div>
+                <div style={{ color: C.muted, fontSize: 10 }}>шт</div>
+              </div>
+              {isMetric && (
+                <div style={{ textAlign: "center", flex: 1 }}>
+                  <div style={{ color: C.muted, fontSize: 10, fontWeight: 700 }}>В МЕТРАХ</div>
+                  <div style={{ color: C.accent2, fontWeight: 900, fontSize: 22 }}>{Math.round(stock.meters * 100) / 100}</div>
+                  <div style={{ color: C.muted, fontSize: 10 }}>м</div>
+                </div>
+              )}
+              <div style={{ textAlign: "center", flex: 1 }}>
+                <div style={{ color: C.muted, fontSize: 10, fontWeight: 700 }}>ВВОДИТЬ</div>
+                <div style={{ color: C.warn, fontWeight: 900, fontSize: 22 }}>{unit}</div>
+                <div style={{ color: C.muted, fontSize: 10 }}>{isMetric ? "метрах" : "штуках"}</div>
+              </div>
+            </div>
+
+            <Inp label={`Сколько расход (${unit})`} value={qty} type="number" step="0.1" onChange={setQty} placeholder={isMetric ? "напр. 2.5" : "напр. 3"} />
+            <Inp label="Заметка (необяз.)" value={note} onChange={setNote} placeholder="..." />
+            <Btn onClick={submit} v="danger" full>🔩 Списать материал</Btn>
+          </div>
+        </Card>
+      )}
+
+      {tab === "list" && (
+        <div>
+          {myList.length === 0 && <div style={{ color: C.sub, textAlign: "center", padding: 32 }}>Нет записей</div>}
+          {myList.map(x => {
+            const p2 = data.products.find(q => q.id === x.productId);
+            const m2 = masters.find(q => q.id === x.masterId);
+            return (
+              <ActionRow key={x.id} isOwner={user.role === "owner"}
+                onEdit={() => setEditItem({ ...x })}
+                onDelete={() => setConfirm(x.id)}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+                  <div>
+                    <div style={{ color: C.text, fontWeight: 700, fontSize: 13 }}>{p2?.name || "—"}</div>
+                    <div style={{ color: C.sub, fontSize: 11 }}>{x.date}{user.role !== "master" ? ` · ${m2?.name}` : ""}{x.note ? ` · ${x.note}` : ""}</div>
+                  </div>
+                  <Pill color="red">−{x.qty} {x.unit}</Pill>
+                </div>
+              </ActionRow>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// SALES
+// ═══════════════════════════════════════════════════════════
+function Sales({ data, setData, user }) {
+  const masters = data.masters || INIT_MASTERS;
+  const [tab, setTab] = useState("list");
+  const [form, setForm] = useState({ client: "", date: todayStr(), masterId: user.masterId || (data.masters || INIT_MASTERS)[0]?.id, items: [{ id: data.products[0]?.id || "", qty: 1 }], total: "", status: "done", note: "" });
+  const [confirm, setConfirm] = useState(null);
+  const [editItem, setEditItem] = useState(null);
+
+  const myList = user.role === "master" ? data.sales.filter(s => s.masterId === user.masterId) : data.sales;
+  const td = todayStr();
+  const todaySales = myList.filter(s => s.date === td);
+  const todayTotal = todaySales.filter(s => s.status === "done").reduce((a, b) => a + b.total, 0);
+
+  const addItem = () => setForm(f => ({ ...f, items: [...f.items, { id: data.products[0]?.id || "", qty: 1 }] }));
+  const remItem = i => setForm(f => ({ ...f, items: f.items.filter((_, idx) => idx !== i) }));
+  const updItem = (i, field, val) => setForm(f => { const it = [...f.items]; it[i] = { ...it[i], [field]: field === "qty" ? Number(val) : val }; return { ...f, items: it }; });
+
+  const submit = () => {
+    if (!form.client || !form.total) return alert("Заполните клиента и сумму");
+    setData(d => { const nd = { ...d, sales: [{ id: uid(), ...form, total: Number(form.total) }, ...d.sales] }; save(nd); return nd; });
+    setForm({ client: "", date: todayStr(), masterId: user.masterId || masters[0]?.id, items: [{ id: data.products[0]?.id || "", qty: 1 }], total: "", status: "done", note: "" });
+    setTab("list");
+  };
+
+  const del = id => { setData(d => { const nd = { ...d, sales: d.sales.filter(x => x.id !== id) }; save(nd); return nd; }); setConfirm(null); };
+
+  const saveEdit = () => {
+    setData(d => { const nd = { ...d, sales: d.sales.map(x => x.id === editItem.id ? { ...x, ...editItem } : x) }; save(nd); return nd; });
+    setEditItem(null);
+  };
+
+  return (
+    <div>
+      {confirm && <Confirm msg="Удалить заказ?" onYes={() => del(confirm)} onNo={() => setConfirm(null)} />}
+      {editItem && (
+        <EditSheet title="Изменить заказ" onClose={() => setEditItem(null)} onSave={saveEdit}
+          values={editItem} onChange={(k, v) => setEditItem(e => ({ ...e, [k]: v }))}
+          fields={[
+            { key: "client", label: "Клиент" }, { key: "date", label: "Дата", type: "date" },
+            { key: "total", label: "Сумма", type: "number" },
+            { key: "status", label: "Статус", type: "select", options: [{ value: "done", label: "Готово" }, { value: "progress", label: "В работе" }] },
+            { key: "note", label: "Заметка" },
+          ]}
+        />
+      )}
+
+      <TodayBar items={todaySales.length ? [
+        { label: "Заказов", value: todaySales.length, color: C.accent },
+        { label: "Сумма", value: fmtN(todayTotal) + " смн", color: C.accent2 },
+        { label: "В работе", value: todaySales.filter(s => s.status === "progress").length, color: C.warn },
+      ] : []} />
+
+      <TabBar tabs={[{ id: "list", label: "📋 Заказы" }, { id: "add", label: "➕ Новый" }]} active={tab} onSelect={setTab} />
+
+      {tab === "list" && (
+        <div>
+          {myList.length === 0 && <div style={{ color: C.sub, textAlign: "center", padding: 32 }}>Нет заказов</div>}
+          {myList.map(s => {
+            const m = masters.find(x => x.id === s.masterId);
+            return (
+              <ActionRow key={s.id} isOwner={user.role === "owner" || user.role === "manager"}
+                onEdit={() => setEditItem({ ...s })} onDelete={() => setConfirm(s.id)}
+              >
+                <Card style={{ marginBottom: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: C.text, fontWeight: 800, fontSize: 14 }}>{s.client}</div>
+                      <div style={{ color: C.sub, fontSize: 11, margin: "2px 0" }}>{s.date} · {m?.name}</div>
+                      <div style={{ color: C.muted, fontSize: 11 }}>{s.items.map(it => { const p = data.products.find(x => x.id === it.id); return p ? `${p.name} ×${it.qty}` : ""; }).filter(Boolean).join(", ")}</div>
+                    </div>
+                    <div style={{ textAlign: "right", display: "flex", flexDirection: "column", gap: 5 }}>
+                      <div style={{ color: C.accent2, fontWeight: 800 }}>{fmt(s.total)}</div>
+                      <Pill color={s.status === "done" ? "green" : "yellow"} sm>{s.status === "done" ? "Готово" : "В работе"}</Pill>
+                    </div>
+                  </div>
+                </Card>
+              </ActionRow>
+            );
+          })}
+        </div>
+      )}
+
+      {tab === "add" && (
+        <Card>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <Inp label="Клиент" value={form.client} onChange={v => setForm(f => ({ ...f, client: v }))} placeholder="Имя клиента" />
+            <Inp label="Дата" value={form.date} type="date" onChange={v => setForm(f => ({ ...f, date: v }))} />
+            {user.role !== "master" && <Sel label="Мастер" value={form.masterId} onChange={v => setForm(f => ({ ...f, masterId: v }))} options={masters.map(m => ({ value: m.id, label: m.name }))} />}
+            <Sel label="Статус" value={form.status} onChange={v => setForm(f => ({ ...f, status: v }))} options={[{ value: "done", label: "Готово" }, { value: "progress", label: "В работе" }]} />
+            <div>
+              <label style={{ color: C.sub, fontSize: 11, fontWeight: 700 }}>ТОВАРЫ</label>
+              <div style={{ marginTop: 7 }}>
+                {form.items.map((it, i) => (
+                  <div key={i} style={{ display: "flex", gap: 7, marginBottom: 7, alignItems: "flex-end" }}>
+                    <div style={{ flex: 2 }}><Sel value={it.id} onChange={v => updItem(i, "id", v)} options={data.products.map(p => ({ value: p.id, label: p.name }))} /></div>
+                    <div style={{ flex: 1 }}><Inp type="number" value={it.qty} onChange={v => updItem(i, "qty", v)} placeholder="1" /></div>
+                    {form.items.length > 1 && <button onClick={() => remItem(i)} style={{ background: C.danger, color: "#fff", border: "none", borderRadius: 8, padding: "10px 11px", cursor: "pointer" }}>✕</button>}
+                  </div>
+                ))}
+                <button onClick={addItem} style={{ background: "transparent", color: C.accent, border: `1px dashed ${C.accent}`, borderRadius: 8, padding: "7px", cursor: "pointer", fontSize: 12, width: "100%", fontFamily: "inherit" }}>+ Добавить товар</button>
+              </div>
+            </div>
+            <Inp label="Сумма (смн)" value={form.total} type="number" onChange={v => setForm(f => ({ ...f, total: v }))} placeholder="0" />
+            <Inp label="Заметка" value={form.note} onChange={v => setForm(f => ({ ...f, note: v }))} placeholder="..." />
+            <Btn onClick={submit} v="success" full>✅ Сохранить заказ</Btn>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// INCOME
+// ═══════════════════════════════════════════════════════════
+function Income({ data, setData, user }) {
+  const [tab, setTab] = useState("money");
+  const [sub, setSub] = useState("list");
+  const [mf, setMf] = useState({ date: todayStr(), source: "", amount: "", note: "" });
+  const [matf, setMatf] = useState({ date: todayStr(), productId: data.products[0]?.id || "", qty: "", price: "", note: "" });
+  const [confirm, setConfirm] = useState(null);
+  const [editItem, setEditItem] = useState(null);
+
+  const td = todayStr();
+  const todayInc = data.incomes.filter(x => x.date === td).reduce((s, x) => s + x.amount, 0);
+  const monthInc = data.incomes.filter(x => monthOf(x.date) === currentMonth()).reduce((s, x) => s + x.amount, 0);
+
+  const submitMoney = () => {
+    if (!mf.amount || !mf.source) return alert("Заполните поля");
+    setData(d => { const nd = { ...d, incomes: [{ id: uid(), ...mf, amount: Number(mf.amount) }, ...d.incomes] }; save(nd); return nd; });
+    setMf({ date: todayStr(), source: "", amount: "", note: "" }); setSub("list");
+  };
+
+  const submitMat = () => {
+    if (!matf.qty || Number(matf.qty) <= 0) return alert("Введите количество");
+    if (!matf.price || Number(matf.price) <= 0) return alert("Введите цену за штуку");
+    const qn = Number(matf.qty);
+    const pr = Number(matf.price);
+    setData(d => {
+      const p = d.products.find(x => x.id === matf.productId);
+      const st = { ...d.stock };
+      const cur = st[matf.productId] || { pcs: 0, meters: 0 };
+      const np = cur.pcs + qn;
+      st[matf.productId] = { pcs: np, meters: np * (p?.length || 0) };
+      const nd = { ...d, stock: st, materialIncomes: [{ id: uid(), ...matf, qty: qn, price: pr, total: qn * pr, unit: "шт" }, ...d.materialIncomes] };
+      save(nd); return nd;
+    });
+    setMatf({ date: todayStr(), productId: data.products[0]?.id || "", qty: "", price: "", note: "" }); setSub("list");
+  };
+
+  const delInc = id => { setData(d => { const nd = { ...d, incomes: d.incomes.filter(x => x.id !== id) }; save(nd); return nd; }); setConfirm(null); };
+  const delMat = id => { setData(d => { const nd = { ...d, materialIncomes: d.materialIncomes.filter(x => x.id !== id) }; save(nd); return nd; }); setConfirm(null); };
+
+  const saveEdit = () => {
+    setData(d => { const nd = { ...d, incomes: d.incomes.map(x => x.id === editItem.id ? { ...x, ...editItem } : x) }; save(nd); return nd; });
+    setEditItem(null);
+  };
+
+  return (
+    <div>
+      {confirm && <Confirm msg="Удалить запись?" onYes={confirm.type === "inc" ? () => delInc(confirm.id) : () => delMat(confirm.id)} onNo={() => setConfirm(null)} />}
+      {editItem && (
+        <EditSheet title="Изменить приход" onClose={() => setEditItem(null)} onSave={saveEdit}
+          values={editItem} onChange={(k, v) => setEditItem(e => ({ ...e, [k]: v }))}
+          fields={[{ key: "date", label: "Дата", type: "date" }, { key: "source", label: "Источник" }, { key: "amount", label: "Сумма", type: "number" }, { key: "note", label: "Заметка" }]}
+        />
+      )}
+
+      <TodayBar items={[{ label: "Сегодня", value: fmt(todayInc), color: C.accent2 }, { label: "Месяц", value: fmt(monthInc), color: C.accent2 }]} />
+
+      <TabBar tabs={[{ id: "money", label: "💵 Деньги" }, { id: "material", label: "📦 Материал" }]} active={tab} onSelect={v => { setTab(v); setSub("list"); }} color={C.accent2} />
+
+      {tab === "money" && (
+        <>
+          <TabBar tabs={[{ id: "list", label: "Список" }, { id: "add", label: "➕ Добавить" }]} active={sub} onSelect={setSub} color={C.accent2} />
+          {sub === "list" && (
+            <div>
+              {data.incomes.map(i => (
+                <ActionRow key={i.id} isOwner={user.role === "owner"}
+                  onEdit={() => setEditItem({ ...i })} onDelete={() => setConfirm({ id: i.id, type: "inc" })}
+                >
+                  <Card style={{ marginBottom: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <div><div style={{ color: C.text, fontWeight: 700 }}>{i.source}</div><div style={{ color: C.sub, fontSize: 11 }}>{i.date} · {i.note}</div></div>
+                      <Pill color="green">+{fmtN(i.amount)}</Pill>
+                    </div>
+                  </Card>
+                </ActionRow>
+              ))}
+            </div>
+          )}
+          {sub === "add" && (
+            <Card>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <Inp label="Дата" value={mf.date} type="date" onChange={v => setMf(f => ({ ...f, date: v }))} />
+                <Inp label="Источник" value={mf.source} onChange={v => setMf(f => ({ ...f, source: v }))} placeholder="Оплата заказа / Аванс" />
+                <Inp label="Сумма (смн)" value={mf.amount} type="number" onChange={v => setMf(f => ({ ...f, amount: v }))} placeholder="0" />
+                <Inp label="Заметка" value={mf.note} onChange={v => setMf(f => ({ ...f, note: v }))} placeholder="..." />
+                <Btn onClick={submitMoney} v="success" full>💾 Сохранить</Btn>
+              </div>
+            </Card>
+          )}
+        </>
+      )}
+
+      {tab === "material" && (
+        <>
+          <div style={{ background: "#00c6ff0a", border: "1px solid #00c6ff22", borderRadius: 10, padding: "8px 12px", marginBottom: 10 }}>
+            <div style={{ color: C.accent, fontSize: 12, fontWeight: 700 }}>ℹ️ Материал приходит в ШТУКАХ</div>
+            <div style={{ color: C.sub, fontSize: 11, marginTop: 2 }}>Профиль 6м — вводите штуки. Система сама считает метры.</div>
+          </div>
+          <TabBar tabs={[{ id: "list", label: "История" }, { id: "add", label: "➕ Приход" }]} active={sub} onSelect={setSub} color={C.accent2} />
+          {sub === "list" && (
+            <div>
+              {data.materialIncomes.map(x => {
+                const p = data.products.find(q => q.id === x.productId);
+                return (
+                  <ActionRow key={x.id} isOwner={user.role === "owner"} onDelete={() => setConfirm({ id: x.id, type: "mat" })}>
+                    <Card style={{ marginBottom: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <div>
+                          <div style={{ color: C.text, fontWeight: 700 }}>{p?.name}</div>
+                          <div style={{ color: "#7a8fa6", fontSize: 11 }}>{x.date}{x.note ? " · " + x.note : ""}</div>
+                          {x.price && <div style={{ color: "#7a8fa6", fontSize: 11 }}>{x.qty} шт × {new Intl.NumberFormat("ru-RU").format(x.price)} смн</div>}
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <Pill color="blue">+{x.qty} шт</Pill>
+                          {x.total && <div style={{ color: "#00e68a", fontWeight: 700, fontSize: 13, marginTop: 4 }}>{new Intl.NumberFormat("ru-RU").format(x.total)} смн</div>}
+                        </div>
+                      </div>
+                    </Card>
+                  </ActionRow>
+                );
+              })}
+            </div>
+          )}
+          {sub === "add" && (
+            <Card>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <Inp label="Дата" value={matf.date} type="date" onChange={v => setMatf(f => ({ ...f, date: v }))} />
+                <Sel label="Материал" value={matf.productId} onChange={v => setMatf(f => ({ ...f, productId: v }))} options={data.products.filter(p => p.cat !== "Готов").map(p => ({ value: p.id, label: p.name }))} />
+                <Inp label="Количество (ШТУК)" value={matf.qty} type="number" onChange={v => setMatf(f => ({ ...f, qty: v }))} placeholder="10" />
+                <Inp label="Цена за 1 штуку (смн)" value={matf.price} type="number" onChange={v => setMatf(f => ({ ...f, price: v }))} placeholder="50" />
+                {matf.qty && matf.price && Number(matf.qty) > 0 && Number(matf.price) > 0 && (
+                  <div style={{ background: "#00e68a12", border: "1px solid #00e68a33", borderRadius: 10, padding: "10px 13px", display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: "#7a8fa6", fontSize: 13 }}>Итого сумма:</span>
+                    <span style={{ color: "#00e68a", fontWeight: 800, fontSize: 14 }}>{new Intl.NumberFormat("ru-RU").format(Number(matf.qty) * Number(matf.price))} смн</span>
+                  </div>
+                )}
+                <Inp label="Заметка" value={matf.note} onChange={v => setMatf(f => ({ ...f, note: v }))} placeholder="..." />
+                <Btn onClick={submitMat} v="success" full>📦 Принять материал</Btn>
+              </div>
+            </Card>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPENSES
+// ═══════════════════════════════════════════════════════════
+function Expenses({ data, setData, user }) {
+  const masters = data.masters || INIT_MASTERS;
+  const [tab, setTab] = useState("list");
+  const [form, setForm] = useState({ date: todayStr(), cat: EXPENSE_CATS[0], masterId: "", amount: "", note: "" });
+  const [confirm, setConfirm] = useState(null);
+  const [editItem, setEditItem] = useState(null);
+
+  const td = todayStr();
+  const todayExp = data.expenses.filter(x => x.date === td).reduce((s, x) => s + x.amount, 0);
+  const monthExp = data.expenses.filter(x => monthOf(x.date) === currentMonth()).reduce((s, x) => s + x.amount, 0);
+  const byCat = {};
+  data.expenses.filter(x => monthOf(x.date) === currentMonth()).forEach(e => { byCat[e.cat] = (byCat[e.cat] || 0) + e.amount; });
+
+  const submit = () => {
+    if (!form.amount) return alert("Введите сумму");
+    setData(d => { const nd = { ...d, expenses: [{ id: uid(), ...form, amount: Number(form.amount) }, ...d.expenses] }; save(nd); return nd; });
+    setForm({ date: todayStr(), cat: EXPENSE_CATS[0], masterId: "", amount: "", note: "" }); setTab("list");
+  };
+
+  const del = id => { setData(d => { const nd = { ...d, expenses: d.expenses.filter(x => x.id !== id) }; save(nd); return nd; }); setConfirm(null); };
+
+  const saveEdit = () => {
+    setData(d => { const nd = { ...d, expenses: d.expenses.map(x => x.id === editItem.id ? { ...x, ...editItem } : x) }; save(nd); return nd; });
+    setEditItem(null);
+  };
+
+  return (
+    <div>
+      {confirm && <Confirm msg="Удалить расход?" onYes={() => del(confirm)} onNo={() => setConfirm(null)} />}
+      {editItem && (
+        <EditSheet title="Изменить расход" onClose={() => setEditItem(null)} onSave={saveEdit}
+          values={editItem} onChange={(k, v) => setEditItem(e => ({ ...e, [k]: v }))}
+          fields={[
+            { key: "date", label: "Дата", type: "date" },
+            { key: "cat", label: "Категория", type: "select", options: EXPENSE_CATS.map(c => ({ value: c, label: c })) },
+            { key: "amount", label: "Сумма", type: "number" }, { key: "note", label: "Описание" },
+          ]}
+        />
+      )}
+
+      <TodayBar items={[{ label: "Сегодня", value: fmt(todayExp), color: C.danger }, { label: "Месяц", value: fmt(monthExp), color: C.danger }]} />
+
+      {/* Category bars */}
+      {Object.keys(byCat).length > 0 && (
+        <div style={{ background: "#ff4d6d08", border: "1px solid #ff4d6d22", borderRadius: 12, padding: "10px 13px", marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 9 }}>
+            <span style={{ color: C.sub, fontSize: 11, fontWeight: 700 }}>ПО КАТЕГОРИЯМ (МЕСЯЦ)</span>
+            <span style={{ color: C.danger, fontWeight: 800, fontSize: 13 }}>{fmt(monthExp)}</span>
+          </div>
+          {Object.entries(byCat).map(([cat, amt]) => (
+            <div key={cat} style={{ marginBottom: 7 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                <span style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>{cat}</span>
+                <span style={{ color: C.danger, fontSize: 11 }}>{fmtN(amt)}</span>
+              </div>
+              <div style={{ background: C.border, borderRadius: 3, height: 5 }}>
+                <div style={{ background: C.danger, borderRadius: 3, height: 5, width: `${monthExp > 0 ? (amt / monthExp) * 100 : 0}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <TabBar tabs={[{ id: "list", label: "📋 Список" }, { id: "add", label: "➕ Добавить" }]} active={tab} onSelect={setTab} color={C.danger} />
+
+      {tab === "list" && (
+        <div>
+          {data.expenses.map(e => {
+            const m = masters.find(x => x.id === e.masterId);
+            return (
+              <ActionRow key={e.id} isOwner={user.role === "owner"} onEdit={() => setEditItem({ ...e })} onDelete={() => setConfirm(e.id)}>
+                <Card style={{ marginBottom: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div><div style={{ color: C.text, fontWeight: 700 }}>{e.note || e.cat}</div><div style={{ color: C.sub, fontSize: 11 }}>{e.date} · {e.cat}{m ? ` · ${m.name}` : ""}</div></div>
+                    <Pill color="red">−{fmtN(e.amount)}</Pill>
+                  </div>
+                </Card>
+              </ActionRow>
+            );
+          })}
+        </div>
+      )}
+
+      {tab === "add" && (
+        <Card>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <Inp label="Дата" value={form.date} type="date" onChange={v => setForm(f => ({ ...f, date: v }))} />
+            <Sel label="Категория" value={form.cat} onChange={v => setForm(f => ({ ...f, cat: v }))} options={EXPENSE_CATS} />
+            {form.cat === "Зарплата" && <Sel label="Мастер" value={form.masterId} onChange={v => setForm(f => ({ ...f, masterId: v }))} options={[{ value: "", label: "—" }, ...masters.map(m => ({ value: m.id, label: m.name }))]} />}
+            <Inp label="Сумма (смн)" value={form.amount} type="number" onChange={v => setForm(f => ({ ...f, amount: v }))} placeholder="0" />
+            <Inp label="Описание" value={form.note} onChange={v => setForm(f => ({ ...f, note: v }))} placeholder="..." />
+            <Btn onClick={submit} v="danger" full>💾 Сохранить расход</Btn>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// STOCK
+// ═══════════════════════════════════════════════════════════
+function Stock({ data }) {
+  const [search, setSearch] = useState("");
+  const [cat, setCat] = useState("all");
+  const cats = ["all", ...new Set(data.products.map(p => p.cat))];
+  const filtered = data.products.filter(p => (cat === "all" || p.cat === cat) && p.name.toLowerCase().includes(search.toLowerCase()));
+  return (
+    <div>
+      <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Поиск..."
+        style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 13px", color: C.text, fontSize: 14, outline: "none", width: "100%", boxSizing: "border-box", marginBottom: 10, fontFamily: "inherit" }} />
+      <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 11 }}>
+        {cats.map(c => (
+          <button key={c} onClick={() => setCat(c)} style={{ background: cat === c ? C.accent : C.card, color: cat === c ? "#001a2e" : C.sub, border: `1px solid ${cat === c ? C.accent : C.border}`, borderRadius: 20, padding: "4px 11px", cursor: "pointer", fontSize: 11, fontWeight: 700, fontFamily: "inherit" }}>{c === "all" ? "Все" : c}</button>
+        ))}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {filtered.map(p => {
+          const s = data.stock[p.id] || { pcs: 0, meters: 0 };
+          const low = s.pcs < 5, mid = s.pcs < 15 && !low;
+          return (
+            <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 13px", background: low ? "#ff4d6d08" : mid ? "#ffb83008" : C.card, border: `1px solid ${low ? "#ff4d6d33" : mid ? "#ffb83033" : C.border}`, borderRadius: 10 }}>
+              <div><div style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>{p.name}</div><div style={{ color: C.muted, fontSize: 11 }}>{p.cat}</div></div>
+              <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+                <Pill color={low ? "red" : mid ? "yellow" : "blue"} sm>{Math.round(s.pcs * 100) / 100} шт</Pill>
+                {p.length > 0 && <Pill color="gray" sm>{Math.round(s.meters * 100) / 100} м</Pill>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── PIN SETTINGS COMPONENT ─────────────────────────────
+function PinSettings({ data, setData }) {
+  const [ownerPin, setOwnerPin] = useState("");
+  const [managerPin, setManagerPin] = useState("");
+  const [savedOwner, setSavedOwner] = useState(false);
+  const [savedManager, setSavedManager] = useState(false);
+
+  const savePin = (key, val, setSaved) => {
+    if (val.length !== 4 || !/^[0-9]{4}$/.test(val)) return alert("PIN должен быть ровно 4 цифры");
+    setData(d => { const nd = { ...d, [key]: val }; save(nd); return nd; });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  return (
+    <div>
+      <div style={{ background: "#ff4d6d0a", border: "1px solid #ff4d6d22", borderRadius: 10, padding: "9px 12px", marginBottom: 14 }}>
+        <div style={{ color: "#ff4d6d", fontSize: 12, fontWeight: 700 }}>🔐 Изменить PIN-коды</div>
+        <div style={{ color: "#7a8fa6", fontSize: 11, marginTop: 2 }}>Текущие PIN-коды можно изменить ниже</div>
+      </div>
+
+      <Card style={{ marginBottom: 10 }}>
+        <div style={{ color: "#e8f0fe", fontWeight: 700, marginBottom: 8 }}>👑 Владелец</div>
+        <div style={{ color: "#7a8fa6", fontSize: 12, marginBottom: 10 }}>Текущий PIN: <span style={{ color: "#00c6ff", fontWeight: 700 }}>{data.ownerPin || "1111"}</span></div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input type="tel" maxLength={4} value={ownerPin} onChange={e => setOwnerPin(e.target.value.replace(/\D/g,"").slice(0,4))}
+            placeholder="Новый PIN (4 цифры)"
+            style={{ background: "#0e1420", border: "1px solid #1e2d45", borderRadius: 10, padding: "9px 12px", color: "#e8f0fe", fontSize: 14, outline: "none", flex: 1, fontFamily: "inherit" }} />
+          <Btn onClick={() => savePin("ownerPin", ownerPin, setSavedOwner)} v={savedOwner ? "success" : "primary"} sm>
+            {savedOwner ? "✅ Сохранено" : "Сохранить"}
+          </Btn>
+        </div>
+      </Card>
+
+      <Card style={{ marginBottom: 10 }}>
+        <div style={{ color: "#e8f0fe", fontWeight: 700, marginBottom: 8 }}>👔 Менеджер</div>
+        <div style={{ color: "#7a8fa6", fontSize: 12, marginBottom: 10 }}>Текущий PIN: <span style={{ color: "#00c6ff", fontWeight: 700 }}>{data.managerPin || "5555"}</span></div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input type="tel" maxLength={4} value={managerPin} onChange={e => setManagerPin(e.target.value.replace(/\D/g,"").slice(0,4))}
+            placeholder="Новый PIN (4 цифры)"
+            style={{ background: "#0e1420", border: "1px solid #1e2d45", borderRadius: 10, padding: "9px 12px", color: "#e8f0fe", fontSize: 14, outline: "none", flex: 1, fontFamily: "inherit" }} />
+          <Btn onClick={() => savePin("managerPin", managerPin, setSavedManager)} v={savedManager ? "success" : "primary"} sm>
+            {savedManager ? "✅ Сохранено" : "Сохранить"}
+          </Btn>
+        </div>
+      </Card>
+
+      <div style={{ background: "#ffb83012", border: "1px solid #ffb83033", borderRadius: 10, padding: "10px 13px" }}>
+        <div style={{ color: "#ffb830", fontSize: 12, fontWeight: 700 }}>⚠️ Важно</div>
+        <div style={{ color: "#7a8fa6", fontSize: 11, marginTop: 3, lineHeight: 1.6 }}>
+          После сохранения нового PIN — запомните его!<br/>
+          Старый PIN больше работать не будет.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRODUCTS MANAGER
+// ═══════════════════════════════════════════════════════════
+function ProductsManager({ data, setData }) {
+  const [section, setSection] = useState("products"); // "products" | "masters"
+  const [tab, setTab] = useState("list");
+  const [search, setSearch] = useState("");
+  const [form, setForm] = useState({ name: "", cat: "Профиль", unit: "шт", length: "0" });
+  const [editItem, setEditItem] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  // Masters state
+  const [mTab, setMTab] = useState("list");
+  const [mForm, setMForm] = useState({ name: "", pin: "" });
+  const [mEdit, setMEdit] = useState(null);
+  const [mConfirm, setMConfirm] = useState(null);
+
+  const masters = data.masters || INIT_MASTERS;
+
+  const addMaster = () => {
+    if (!mForm.name || !mForm.pin) return alert("Введите имя и PIN (4 цифры)");
+    if (mForm.pin.length !== 4 || !/^\d+$/.test(mForm.pin)) return alert("PIN должен быть 4 цифры");
+    const nm = { id: "m" + uid(), name: mForm.name, pin: mForm.pin };
+    setData(d => { const nd = { ...d, masters: [...(d.masters || INIT_MASTERS), nm] }; save(nd); return nd; });
+    setMForm({ name: "", pin: "" }); setMTab("list");
+  };
+
+  const delMaster = id => {
+    setData(d => { const nd = { ...d, masters: (d.masters || INIT_MASTERS).filter(m => m.id !== id) }; save(nd); return nd; });
+    setMConfirm(null);
+  };
+
+  const saveMasterEdit = () => {
+    if (!mEdit.name || !mEdit.pin) return alert("Заполните имя и PIN");
+    setData(d => { const nd = { ...d, masters: (d.masters || INIT_MASTERS).map(m => m.id === mEdit.id ? { ...m, name: mEdit.name, pin: mEdit.pin } : m) }; save(nd); return nd; });
+    setMEdit(null);
+  };
+
+  const addProduct = () => {
+    if (!form.name) return alert("Введите название");
+    const np = { id: uid(), name: form.name, cat: form.cat, unit: form.unit, length: Number(form.length) || 0 };
+    setData(d => {
+      const st = { ...d.stock }; st[np.id] = { pcs: 0, meters: 0 };
+      const nd = { ...d, products: [...d.products, np], stock: st }; save(nd); return nd;
+    });
+    setForm({ name: "", cat: "Профиль", unit: "шт", length: "0" }); setTab("list");
+  };
+
+  const del = id => { setData(d => { const nd = { ...d, products: d.products.filter(p => p.id !== id) }; save(nd); return nd; }); setConfirm(null); };
+
+  const saveEdit = () => {
+    setData(d => {
+      const nd = { ...d, products: d.products.map(p => p.id === editItem.id ? { ...p, name: editItem.name, cat: editItem.cat, unit: editItem.unit, length: Number(editItem.length) || 0 } : p) };
+      save(nd); return nd;
+    });
+    setEditItem(null);
+  };
+
+  const filtered = data.products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div>
+      {/* Section switcher */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+        {[["products","📋 Товары"],["masters","👷 Мастера"],["pins","🔐 PIN-коды"],["lang_info","🌐 Язык"]].map(([id, label]) => (
+          <button key={id} onClick={() => { setSection(id); setTab("list"); setMTab("list"); }} style={{
+            flex: 1, background: section === id ? C.warn : C.card,
+            color: section === id ? "#001a2e" : C.sub,
+            border: `1px solid ${section === id ? C.warn : C.border}`,
+            borderRadius: 9, padding: "9px", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit",
+            boxShadow: section === id ? glow(C.warn) : "none",
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {/* MASTERS SECTION */}
+      {section === "masters" && (
+        <div>
+          {mConfirm && <Confirm msg="Удалить мастера?" onYes={() => delMaster(mConfirm)} onNo={() => setMConfirm(null)} />}
+          {mEdit && (
+            <EditSheet title="Изменить мастера" onClose={() => setMEdit(null)} onSave={saveMasterEdit}
+              values={mEdit} onChange={(k, v) => setMEdit(e => ({ ...e, [k]: v }))}
+              fields={[{ key: "name", label: "Имя мастера" }, { key: "pin", label: "PIN-код (4 цифры)", type: "number" }]}
+            />
+          )}
+          <div style={{ background: "#00c6ff0a", border: "1px solid #00c6ff22", borderRadius: 10, padding: "8px 12px", marginBottom: 12 }}>
+            <div style={{ color: C.accent, fontSize: 12, fontWeight: 700 }}>ℹ️ PIN для входа мастера</div>
+            <div style={{ color: C.sub, fontSize: 11, marginTop: 2 }}>Каждый мастер входит своим PIN-кодом.</div>
+          </div>
+          <TabBar tabs={[{ id: "list", label: `👷 Мастера (${masters.length})` }, { id: "add", label: "➕ Добавить" }]} active={mTab} onSelect={setMTab} color={C.warn} />
+          {mTab === "list" && (
+            <div>
+              {masters.map(m => (
+                <ActionRow key={m.id} isOwner={true} onEdit={() => setMEdit({ ...m })} onDelete={() => setMConfirm(m.id)}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 13px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+                    <div>
+                      <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>{m.name}</div>
+                      <div style={{ color: C.muted, fontSize: 11 }}>PIN: {m.pin}</div>
+                    </div>
+                    <Pill color="yellow" sm>Мастер</Pill>
+                  </div>
+                </ActionRow>
+              ))}
+            </div>
+          )}
+          {mTab === "add" && (
+            <Card>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <Inp label="Имя мастера" value={mForm.name} onChange={v => setMForm(f => ({ ...f, name: v }))} placeholder="Алишер" />
+                <Inp label="PIN-код (4 цифры)" value={mForm.pin} type="number" onChange={v => setMForm(f => ({ ...f, pin: v.slice(0, 4) }))} placeholder="1234" />
+                <Btn onClick={addMaster} v="warn" full>👷 Добавить мастера</Btn>
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* PIN CODES SECTION */}
+      {section === "pins" && (
+        <PinSettings data={data} setData={setData} />
+      )}
+
+      {/* LANG INFO SECTION */}
+      {section === "lang_info" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <Card>
+            <div style={{ color: "#e8f0fe", fontWeight: 700, marginBottom: 10 }}>🌐 Язык / Забон</div>
+            <div style={{ color: "#7a8fa6", fontSize: 13, marginBottom: 14 }}>Переключатель языка находится в шапке приложения (кнопка ТҶ/РУ)</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[["🇷🇺 Русский", "Нажмите РУ в шапке"],["🇹🇯 Тоҷикӣ", "Кнопкаи ТҶ-ро дар боло пахш кунед"]].map(([lang_,hint]) => (
+                <div key={lang_} style={{ background: "#0e1420", borderRadius: 10, padding: "11px 13px" }}>
+                  <div style={{ color: "#e8f0fe", fontWeight: 700, fontSize: 14 }}>{lang_}</div>
+                  <div style={{ color: "#7a8fa6", fontSize: 12, marginTop: 3 }}>{hint}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* PRODUCTS SECTION */}
+      {section === "products" && (
+      <div>
+      {confirm && <Confirm msg="Удалить товар из списка?" onYes={() => del(confirm)} onNo={() => setConfirm(null)} />}
+      {editItem && (
+        <EditSheet title="Изменить товар" onClose={() => setEditItem(null)} onSave={saveEdit}
+          values={{ ...editItem, length: String(editItem.length) }}
+          onChange={(k, v) => setEditItem(e => ({ ...e, [k]: v }))}
+          fields={[
+            { key: "name", label: "Название" }, { key: "cat", label: "Категория" },
+            { key: "unit", label: "Единица (шт/м/м²/бал)" },
+            { key: "length", label: "Длина штуки в м (0 = штучный)", type: "number" },
+          ]}
+        />
+      )}
+
+      <TabBar tabs={[{ id: "list", label: `📋 Товары (${data.products.length})` }, { id: "add", label: "➕ Новый товар" }]} active={tab} onSelect={setTab} color={C.warn} />
+
+      {tab === "list" && (
+        <>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Поиск..."
+            style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 13px", color: C.text, fontSize: 13, outline: "none", width: "100%", boxSizing: "border-box", marginBottom: 10, fontFamily: "inherit" }} />
+          <div>
+            {filtered.map(p => (
+              <ActionRow key={p.id} isOwner={true} onEdit={() => setEditItem({ ...p })} onDelete={() => setConfirm(p.id)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+                  <div>
+                    <div style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>{p.name}</div>
+                    <div style={{ color: C.muted, fontSize: 11 }}>{p.cat} · {p.unit}{p.length > 0 ? ` · ${p.length}м/шт` : ""}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    <Pill color="gray" sm>{p.unit}</Pill>
+                    {p.length > 0 && <Pill color="blue" sm>{p.length}м</Pill>}
+                  </div>
+                </div>
+              </ActionRow>
+            ))}
+          </div>
+        </>
+      )}
+
+      {tab === "add" && (
+        <Card>
+          <div style={{ background: "#ffb83012", border: "1px solid #ffb83033", borderRadius: 10, padding: "9px 12px", marginBottom: 14 }}>
+            <div style={{ color: C.warn, fontSize: 12, fontWeight: 700 }}>💡 Как заполнить</div>
+            <div style={{ color: C.sub, fontSize: 11, marginTop: 3, lineHeight: 1.6 }}>
+              Длина = 6 → профиль 6м (расход в метрах)<br />
+              Длина = 0 → штучный товар (петли, ручки...)
+            </div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <Inp label="Название товара" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} placeholder="Ролер Orex Z" />
+            <Inp label="Категория" value={form.cat} onChange={v => setForm(f => ({ ...f, cat: v }))} placeholder="Профиль / Петли..." />
+            <Sel label="Единица измерения" value={form.unit} onChange={v => setForm(f => ({ ...f, unit: v }))}
+              options={[
+                { value: "шт", label: "шт — штука" },
+                { value: "м", label: "м — метр (погонный)" },
+                { value: "м²", label: "м² — квадратный метр" },
+                { value: "бал", label: "бал — баллон/ёмкость" },
+                { value: "кг", label: "кг — килограмм" },
+                { value: "л", label: "л — литр" },
+              ]} />
+            <Inp label="Длина штуки в метрах (0 если штучный)" value={form.length} type="number" onChange={v => setForm(f => ({ ...f, length: v }))} placeholder="6" />
+            <Btn onClick={addProduct} v="warn" full>➕ Добавить товар</Btn>
+          </div>
+        </Card>
+      )}
+      </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANALYSIS
+// ═══════════════════════════════════════════════════════════
+function Analysis({ data }) {
+  const months = [];
+  for (let i = 5; i >= 0; i--) { const d = new Date(); d.setMonth(d.getMonth() - i); months.push(d.toISOString().slice(0, 7)); }
+  const [sel, setSel] = useState(currentMonth());
+
+  const fm = arr => arr.filter(x => monthOf(x.date) === sel);
+  const income = fm(data.incomes).reduce((s, x) => s + x.amount, 0);
+  const expense = fm(data.expenses).reduce((s, x) => s + x.amount, 0);
+  const profit = income - expense;
+  const revenue = fm(data.sales).filter(s => s.status === "done").reduce((s, x) => s + x.total, 0);
+
+  const masterStats = data.masters.map(m => {
+    const ms = fm(data.sales).filter(s => s.masterId === m.id && s.status === "done");
+    const me = fm(data.materialExpenses).filter(x => x.masterId === m.id);
+    const salary = fm(data.expenses).filter(e => e.masterId === m.id && e.cat === "Зарплата").reduce((s, x) => s + x.amount, 0);
+    const matMap = {};
+    me.forEach(x => { matMap[x.productId] = (matMap[x.productId] || 0) + x.qty; });
+    return { ...m, orders: ms.length, revenue: ms.reduce((s, x) => s + x.total, 0), salary, topMat: Object.entries(matMap).sort((a, b) => b[1] - a[1]).slice(0, 3) };
+  });
+
+  const expByCat = {};
+  fm(data.expenses).forEach(e => { expByCat[e.cat] = (expByCat[e.cat] || 0) + e.amount; });
+
+  const trend = months.map(m => ({
+    m, label: new Date(m + "-01").toLocaleString("ru", { month: "short" }),
+    inc: data.incomes.filter(x => monthOf(x.date) === m).reduce((s, x) => s + x.amount, 0),
+    exp: data.expenses.filter(x => monthOf(x.date) === m).reduce((s, x) => s + x.amount, 0),
+  }));
+  const maxT = Math.max(...trend.map(x => Math.max(x.inc, x.exp)), 1);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+        {months.map(m => (
+          <button key={m} onClick={() => setSel(m)} style={{ background: sel === m ? C.accent : C.card, color: sel === m ? "#001a2e" : C.sub, border: `1px solid ${sel === m ? C.accent : C.border}`, borderRadius: 8, padding: "5px 11px", cursor: "pointer", fontSize: 11, fontWeight: 700, fontFamily: "inherit" }}>
+            {new Date(m + "-01").toLocaleString("ru", { month: "short", year: "2-digit" })}
+          </button>
+        ))}
+      </div>
+
+      <Card glowC={profit >= 0 ? C.accent2 : C.danger}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ color: C.sub, fontSize: 11, fontWeight: 700, letterSpacing: 1 }}>ЧИСТАЯ ПРИБЫЛЬ</div>
+          <div style={{ fontSize: 28, fontWeight: 900, color: profit >= 0 ? C.accent2 : C.danger, margin: "5px 0 2px" }}>{fmtN(profit)}</div>
+          <div style={{ color: C.muted, fontSize: 11 }}>смн</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7, marginTop: 12 }}>
+            {[["Приход",income,C.accent2],["Расходы",expense,C.danger],["Продажи",revenue,C.accent]].map(([l,v,c]) => (
+              <div key={l} style={{ background: C.surface, borderRadius: 8, padding: "7px 4px" }}>
+                <div style={{ color: C.sub, fontSize: 10 }}>{l}</div>
+                <div style={{ color: c, fontWeight: 800, fontSize: 12 }}>{fmtN(v)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <SecTitle icon="📊">Тренд</SecTitle>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 76 }}>
+          {trend.map(x => (
+            <div key={x.m} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+              <div style={{ width: "100%", display: "flex", gap: 2, alignItems: "flex-end", height: 62 }}>
+                <div style={{ flex: 1, background: sel === x.m ? C.accent2 : "#00e68a33", borderRadius: "3px 3px 0 0", height: Math.max(3, (x.inc / maxT) * 60) }} />
+                <div style={{ flex: 1, background: sel === x.m ? C.danger : "#ff4d6d33", borderRadius: "3px 3px 0 0", height: Math.max(3, (x.exp / maxT) * 60) }} />
+              </div>
+              <div style={{ color: C.muted, fontSize: 9 }}>{x.label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 7, justifyContent: "center" }}>
+          {[["Приход",C.accent2],["Расходы",C.danger]].map(([l,c]) => <div key={l} style={{ display: "flex", alignItems: "center", gap: 3 }}><div style={{ width: 7, height: 7, background: c, borderRadius: 2 }} /><span style={{ color: C.muted, fontSize: 10 }}>{l}</span></div>)}
+        </div>
+      </Card>
+
+      {Object.keys(expByCat).length > 0 && (
+        <Card>
+          <SecTitle icon="💸">Расходы по категориям</SecTitle>
+          {Object.entries(expByCat).map(([cat, amt]) => (
+            <div key={cat} style={{ marginBottom: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                <span style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{cat}</span>
+                <span style={{ color: C.danger, fontSize: 12 }}>{fmt(amt)}</span>
+              </div>
+              <div style={{ background: C.border, borderRadius: 3, height: 5 }}>
+                <div style={{ background: C.danger, borderRadius: 3, height: 5, width: `${expense > 0 ? (amt / expense) * 100 : 0}%` }} />
+              </div>
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {/* Material cost vs sales profit analysis */}
+      <Card>
+        <SecTitle icon="💡">Анализ прибыли по материалам</SecTitle>
+        {(() => {
+          const matCost = data.materialIncomes
+            .filter(x => monthOf(x.date) === sel)
+            .reduce((s, x) => s + (x.total || 0), 0);
+          const grossProfit = revenue - matCost;
+          const netProfit = profit;
+          const margin = revenue > 0 ? ((grossProfit / revenue) * 100).toFixed(1) : 0;
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                ["💰 Выручка (продажи)", revenue, "#00c6ff"],
+                ["📦 Закупка материалов", matCost, "#ff4d6d"],
+                ["📊 Валовая прибыль", grossProfit, grossProfit >= 0 ? "#00e68a" : "#ff4d6d"],
+                ["💸 Прочие расходы", expense - matCost > 0 ? expense - matCost : 0, "#ffb830"],
+                ["✅ Чистая прибыль", netProfit, netProfit >= 0 ? "#00e68a" : "#ff4d6d"],
+              ].map(([label, val, color]) => (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", background: "#0e1420", borderRadius: 10 }}>
+                  <span style={{ color: "#7a8fa6", fontSize: 13 }}>{label}</span>
+                  <span style={{ color: color, fontWeight: 800, fontSize: 13 }}>{new Intl.NumberFormat("ru-RU").format(Math.round(val))} смн</span>
+                </div>
+              ))}
+              <div style={{ background: "#00c6ff12", border: "1px solid #00c6ff33", borderRadius: 10, padding: "10px 13px", marginTop: 4 }}>
+                <div style={{ color: "#7a8fa6", fontSize: 11 }}>Маржа (валовая прибыль / выручка)</div>
+                <div style={{ color: "#00c6ff", fontWeight: 900, fontSize: 22, marginTop: 2 }}>{margin}%</div>
+              </div>
+              {matCost === 0 && <div style={{ color: "#2d4060", fontSize: 12, textAlign: "center" }}>Добавьте приход материалов с ценой для анализа</div>}
+            </div>
+          );
+        })()}
+      </Card>
+
+      {/* Material expense breakdown for selected month */}
+      <Card>
+        <SecTitle icon="🔩">Расход материалов (месяц)</SecTitle>
+        {(() => {
+          const matExp = fm(data.materialExpenses);
+          if (matExp.length === 0) return <div style={{ color: "#2d4060", fontSize: 13, textAlign: "center", padding: "10px 0" }}>Нет данных за этот месяц</div>;
+          // Group by product
+          const byProd = {};
+          matExp.forEach(x => {
+            if (!byProd[x.productId]) byProd[x.productId] = { qty: 0, unit: x.unit, masters: {} };
+            byProd[x.productId].qty += x.qty;
+            byProd[x.productId].masters[x.masterId] = (byProd[x.productId].masters[x.masterId] || 0) + x.qty;
+          });
+          const sorted = Object.entries(byProd).sort((a, b) => b[1].qty - a[1].qty);
+          const maxQty = sorted[0]?.[1].qty || 1;
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {sorted.map(([pid, info]) => {
+                const p = data.products.find(x => x.id === pid);
+                const topMaster = Object.entries(info.masters).sort((a,b) => b[1]-a[1])[0];
+                const masterName = topMaster ? (data.masters || INIT_MASTERS).find(m => m.id === topMaster[0])?.name : null;
+                return (
+                  <div key={pid}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                      <div>
+                        <span style={{ color: "#e8f0fe", fontSize: 13, fontWeight: 600 }}>{p?.name || pid}</span>
+                        {masterName && <span style={{ color: "#7a8fa6", fontSize: 11 }}> · {masterName}</span>}
+                      </div>
+                      <span style={{ color: "#ffb830", fontWeight: 800, fontSize: 13 }}>{Math.round(info.qty * 100) / 100} {info.unit}</span>
+                    </div>
+                    <div style={{ background: "#1e2d45", borderRadius: 4, height: 6 }}>
+                      <div style={{ background: "#ffb830", borderRadius: 4, height: 6, width: `${(info.qty / maxQty) * 100}%`, transition: "width 0.4s" }} />
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{ background: "#ffb83012", border: "1px solid #ffb83033", borderRadius: 10, padding: "9px 12px", marginTop: 4 }}>
+                <div style={{ color: "#7a8fa6", fontSize: 11 }}>Всего позиций использовано</div>
+                <div style={{ color: "#ffb830", fontWeight: 800, fontSize: 18, marginTop: 2 }}>{sorted.length}</div>
+              </div>
+            </div>
+          );
+        })()}
+      </Card>
+
+      <Card>
+        <SecTitle icon="👷">Мастера</SecTitle>
+        {masterStats.map(m => (
+          <div key={m.id} style={{ background: C.surface, borderRadius: 12, padding: 12, marginBottom: 9 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
+              <span style={{ color: C.text, fontWeight: 800, fontSize: 14 }}>{m.name}</span>
+              <Pill color="blue" sm>{m.orders} заказов</Pill>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 7, marginBottom: 7 }}>
+              {[["Продажи",fmt(m.revenue),C.accent2],["Зарплата",fmt(m.salary),C.warn]].map(([l,v,c]) => (
+                <div key={l} style={{ background: C.card, borderRadius: 8, padding: "7px 9px" }}>
+                  <div style={{ color: C.muted, fontSize: 10 }}>{l}</div>
+                  <div style={{ color: c, fontWeight: 700, fontSize: 12, marginTop: 2 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+            {m.topMat.length > 0 && (
+              <div>
+                <div style={{ color: C.muted, fontSize: 10, marginBottom: 5 }}>ТОП МАТЕРИАЛЫ</div>
+                <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                  {m.topMat.map(([pid2, qty]) => {
+                    const p = data.products.find(x => x.id === pid2);
+                    return <Pill key={pid2} color="gray" sm>{p?.name}: {Math.round(qty * 10) / 10}</Pill>;
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════════════════
+const OWNER_TABS = [
+  { id: "dash", icon: "🏠", label: "Главная" },
+  { id: "sales", icon: "🛒", label: "Продажи" },
+  { id: "income", icon: "💚", label: "Приход" },
+  { id: "expenses", icon: "💸", label: "Расходы" },
+  { id: "matexp", icon: "🔩", label: "Материал" },
+  { id: "stock", icon: "📦", label: "Склад" },
+  { id: "analysis", icon: "📊", label: "Анализ" },
+  { id: "products", icon: "⚙️", label: "Товары" },
+];
+const MASTER_TABS = [
+  { id: "sales", icon: "🛒", label: "Продажи" },
+  { id: "matexp", icon: "🔩", label: "Материал" },
+];
+const MANAGER_TABS = [
+  { id: "dash", icon: "🏠", label: "Главная" },
+  { id: "sales", icon: "🛒", label: "Продажи" },
+  { id: "income", icon: "💚", label: "Приход" },
+  { id: "stock", icon: "📦", label: "Склад" },
+];
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("dash");
+  const [data, setData] = useState(load);
+  const [lang, setLang] = useState("ru"); // "ru" | "tj"
+
+  const T = (ru, tj) => lang === "tj" ? tj : ru;
+
+  const tabs = user?.role === "master" ? MASTER_TABS : user?.role === "manager" ? MANAGER_TABS : OWNER_TABS;
+
+  const renderPage = () => {
+    switch (activeTab) {
+      case "dash": return <Dashboard data={data} user={user} T={T} />;
+      case "sales": return <Sales data={data} setData={setData} user={user} T={T} />;
+      case "income": return <Income data={data} setData={setData} user={user} T={T} />;
+      case "expenses": return <Expenses data={data} setData={setData} user={user} T={T} />;
+      case "matexp": return <MatExpense data={data} setData={setData} user={user} T={T} />;
+      case "stock": return <Stock data={data} T={T} />;
+      case "analysis": return <Analysis data={data} T={T} />;
+      case "products": return <ProductsManager data={data} setData={setData} T={T} />;
+      default: return null;
+    }
+  };
+
+  if (!user) return <LoginScreen onLogin={u => { setUser(u); setActiveTab(u.role === "master" ? "sales" : "dash"); }} savedMasters={data.masters} savedData={data} />;
+  const curTab = tabs.find(t => t.id === activeTab) || tabs[0];
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", fontFamily: "'Nunito','Segoe UI',sans-serif", color: C.text, maxWidth: 480, margin: "0 auto" }}>
+      {/* Header */}
+      <div style={{ background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 30, height: 30, borderRadius: 9, background: "linear-gradient(135deg,#00c6ff,#0072ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, boxShadow: glow(C.accent) }}>🏭</div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 900 }}>{APP_NAME}</div>
+            <div style={{ fontSize: 10, color: C.sub }}>{user.name}</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {user.role === "owner" && <div style={{ background: "#00e68a22", border: "1px solid #00e68a44", borderRadius: 6, padding: "3px 8px", color: C.accent2, fontSize: 10, fontWeight: 700 }}>👑 ВЛАДЕЛЕЦ</div>}
+          <button onClick={() => setLang(l => l === "ru" ? "tj" : "ru")} style={{ background: lang === "tj" ? "#00c6ff22" : C.card2, border: `1px solid ${lang === "tj" ? C.accent : C.border}`, borderRadius: 8, padding: "4px 10px", color: lang === "tj" ? C.accent : C.sub, fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>{lang === "ru" ? "ТҶ" : "РУ"}</button>
+          <button onClick={() => setUser(null)} style={{ background: "transparent", border: `1px solid ${C.border}`, borderRadius: 8, padding: "4px 9px", color: C.sub, fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>⏏</button>
+        </div>
+      </div>
+
+      {/* Page title */}
+      <div style={{ padding: "11px 14px 0" }}>
+        <div style={{ fontSize: 18, fontWeight: 900 }}>{curTab.icon} {lang === "tj" && curTab.labelTj ? curTab.labelTj : curTab.label}</div>
+        {user.role === "owner" && !["dash","products","stock"].includes(activeTab) && (
+          <div style={{ color: C.muted, fontSize: 11, marginTop: 1 }}>💡 Нажмите на запись — изменить или удалить</div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: "11px 14px 160px" }}>{renderPage()}</div>
+
+      {/* Bottom nav */}
+      <div style={{ position: "fixed", bottom: 60, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: C.surface, borderTop: `1px solid ${C.border}`, display: "flex", zIndex: 50, borderRadius: "12px 12px 0 0" }}>
+        {tabs.map(tab => {
+          const active = activeTab === tab.id;
+          return (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, background: "transparent", border: "none", padding: "9px 2px 6px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, borderTop: active ? `2px solid ${C.accent}` : "2px solid transparent" }}>
+              <span style={{ fontSize: 16, filter: active ? "none" : "grayscale(0.4) opacity(0.5)" }}>{tab.icon}</span>
+              <span style={{ fontSize: 8, fontWeight: 800, color: active ? C.accent : C.muted, letterSpacing: 0.3, whiteSpace: "nowrap" }}>{lang === "tj" && tab.labelTj ? tab.labelTj : tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <style>{`* { -webkit-tap-highlight-color: transparent; } input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; } select option { background: #131928; } ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: #1e2d45; border-radius: 2px; }`}</style>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+</script>
+</body>
+</html>
